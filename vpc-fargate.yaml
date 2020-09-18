@@ -1,0 +1,297 @@
+#Dynamic AZ's
+Parameters:
+  EnvironmentName:
+    Description: Enter VPC Name
+    Type: String
+    Default: "defaultName"
+
+  AZ1:
+    Description: Enter AZ1 Name
+    Type: String
+    Default: "true"
+
+  AZ2:
+    Description: Enter AZ2 Name
+    Type: String
+    Default: "true"
+
+  AZ3:
+    Description: Enter AZ3 Name
+    Type: String
+    Default: "true"
+
+  AZ4:
+    Description: Enter AZ4 Name
+    Type: String
+    Default: "true"
+
+  AZ5:
+    Description: Enter AZ5 Name
+    Type: String
+    Default: "true"    
+
+  AZ6:
+    Description: Enter AZ6 Name
+    Type: String
+    Default: "true" 
+
+Conditions:
+  cAZ1: !Not [!Equals [!Ref AZ1, "true"]]
+  cAZ2: !Not [!Equals [!Ref AZ2, "true"]]
+  cAZ3: !Not [!Equals [!Ref AZ3, "true"]]
+  cAZ4: !Not [!Equals [!Ref AZ4, "true"]]
+  cAZ5: !Not [!Equals [!Ref AZ5, "true"]]
+  cAZ6: !Not [!Equals [!Ref AZ6, "true"]]  
+
+Resources:
+  PubPrivateVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags: 
+        - Key: Name 
+          Value: !Ref EnvironmentName  
+ 
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ1
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ1
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      
+
+  PrivateSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ1    
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ1
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: false
+
+  PublicSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ2
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ2
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: true
+      
+  PrivateSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ2    
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ2
+      CidrBlock: 10.0.4.0/24
+      MapPublicIpOnLaunch: false    
+
+  PublicSubnet3:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ3
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ3
+      CidrBlock: 10.0.5.0/24
+      MapPublicIpOnLaunch: true
+      
+  PrivateSubnet3:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ3    
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ3
+      CidrBlock: 10.0.6.0/24
+      MapPublicIpOnLaunch: false         
+
+  PublicSubnet4:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ4
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ4
+      CidrBlock: 10.0.7.0/24
+      MapPublicIpOnLaunch: true
+      
+  PrivateSubnet4:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ4    
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ4
+      CidrBlock: 10.0.8.0/24
+      MapPublicIpOnLaunch: false 
+
+  PublicSubnet5:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ5
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ5
+      CidrBlock: 10.0.9.0/24
+      MapPublicIpOnLaunch: true
+      
+  PrivateSubnet5:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ5    
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ5
+      CidrBlock: 10.0.10.0/24
+      MapPublicIpOnLaunch: false
+
+  PublicSubnet6:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ6
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ6
+      CidrBlock: 10.0.9.0/24
+      MapPublicIpOnLaunch: true
+      
+  PrivateSubnet6:
+    Type: 'AWS::EC2::Subnet'
+    Condition: cAZ6    
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      AvailabilityZone: !Ref AZ6
+      CidrBlock: 10.0.10.0/24
+      MapPublicIpOnLaunch: false      
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join [_, [!Ref 'AWS::StackName']]
+        - Key: Network
+          Value: Public 
+
+  GatewayToInternet:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      InternetGatewayId: !Ref InternetGateway 
+
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      Tags:
+        - Key: Network
+          Value: Public 
+
+  PublicSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ1    
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+     
+  PublicSubnet2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ2    
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet3RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ3    
+    Properties:
+      SubnetId: !Ref PublicSubnet3
+      RouteTableId: !Ref PublicRouteTable      
+
+  PublicSubnet4RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ4   
+    Properties:
+      SubnetId: !Ref PublicSubnet4
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet5RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ5    
+    Properties:
+      SubnetId: !Ref PublicSubnet5
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet6RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ6   
+    Properties:
+      SubnetId: !Ref PublicSubnet6
+      RouteTableId: !Ref PublicRouteTable
+
+  NatGateway:
+    Type: "AWS::EC2::NatGateway"
+    DependsOn: NatPublicIP
+    Properties: 
+      AllocationId: !GetAtt NatPublicIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+     
+  NatPublicIP:
+    Type: "AWS::EC2::EIP"
+    DependsOn: PubPrivateVPC
+    Properties:
+      Domain: vpc
+
+  PrivateRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref PubPrivateVPC
+      Tags:
+        - Key: Network
+          Value: Private
+
+  PrivateRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+ 
+  PrivateSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ1
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable
+ 
+  PrivateSubnet2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ2
+    Properties:
+      SubnetId: !Ref PrivateSubnet2
+      RouteTableId: !Ref PrivateRouteTable                   
+
+  PrivateSubnet3RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ3
+    Properties:
+      SubnetId: !Ref PrivateSubnet3
+      RouteTableId: !Ref PrivateRouteTable
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ4
+    Properties:
+      SubnetId: !Ref PrivateSubnet4
+      RouteTableId: !Ref PrivateRouteTable
+
+  PrivateSubnet5RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ5
+    Properties:
+      SubnetId: !Ref PrivateSubnet5
+      RouteTableId: !Ref PrivateRouteTable
+
+  PrivateSubnet6RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: cAZ6
+    Properties:
+      SubnetId: !Ref PrivateSubnet6
+      RouteTableId: !Ref PrivateRouteTable                  
